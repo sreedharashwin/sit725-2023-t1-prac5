@@ -1,35 +1,26 @@
 let express = require('express');
 let app = express();
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb://localhost:27017";
 let port = process.env.port || 3000;
-let collection;
-var cors = require('cors'); 
-app.use(cors());
+require('./dbConnection');
+let router = require('./routers/router');
+const { Socket } = require('socket.io');
+let http = require('http').createServer(app);
+let io = require('socket.io')(http);
 
-app.use(express.static(__dirname + '/public'))
+var engines = require('consolidate');
+
+app.set('views', __dirname + '/views');
+app.engine('html', engines.mustache);
+app.set('view engine', 'html');
+
+let path = require('path');
+
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({extended: false}));
+app.use('/',router);
 
-const client = new MongoClient(uri, {
-    serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-    }
-});
-
-
-async function runDBConnection() {
-    try {
-        await client.connect();
-        collection = client.db().collection('Cat');
-        console.log("Cat collection is " + collection);
-    } catch(ex) {
-        console.error(ex);
-    }
-}
-
+/* 
 app.get('/', function (req,res) {
     res.render('indexMongo.html');
 });
@@ -65,9 +56,8 @@ function getAllCats(callback){
         console.log(res);
         callback(err,res);
     });
-}
+} */
 
 app.listen(port, ()=>{
     console.log('express server started');
-    runDBConnection();
 });

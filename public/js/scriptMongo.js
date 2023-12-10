@@ -4,6 +4,7 @@ const addCards = (items) => {
                 '<div class="card medium"><div class="card-image waves-effect waves-block waves-light"><img class="activator" src="'+item.path+'">'+
                 '</div><div class="card-content">'+
                 '<span class="card-title activator grey-text text-darken-4">'+item.title+'<i class="material-icons right">more_vert</i></span><p><a href="#"></a></p></div>'+
+                '<div class="row"><p class="remove_card">Delete Card</p></div>'+
                 '<div class="card-reveal">'+
                 '<span class="card-title grey-text text-darken-4">'+item.subTitle+'<i class="material-icons right">close</i></span>'+
                 '<p class="card-text" style="color:blue">'+item.description+'</p>'+
@@ -25,7 +26,7 @@ const formSubmitted = () => {
 
 function postCat(cat){
     $.ajax({
-        url:'/api/cat',
+        url:'/api/postCat',
         type:'POST',
         data:cat,
         success: (result)=>{
@@ -41,6 +42,24 @@ function getAllCats(){
         // response's data is in array format, so we can use it
         if (response.statusCode === 200) {
             addCards(response.data);
+        }
+
+        var element = document.querySelectorAll(".remove_card");
+
+        for(i=0;i<element.length;i++){
+            element[i].addEventListener("click",function(){
+                var catText = this.parentElement.parentElement.querySelector(".card-title.activator.grey-text.text-darken-4").firstChild.textContent;
+                $.ajax({
+                    url:'/api/removeCat/'+catText,
+                    type:'DELETE',
+                    success: (result)=>{
+                        if (result.statusCode === 201) {
+                            alert('cat delete successful');
+                            this.parentElement.parentElement.remove();
+                        }
+                    }
+                });
+            })
         }
     });
 }

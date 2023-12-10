@@ -23,3 +23,8 @@
     background-color: #EE6E73;
     margin-top: 50px;
 }
+
+.remove_card{
+    color:red;
+    size:15px;
+}
